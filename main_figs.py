@@ -31,48 +31,22 @@ def main(url_north, url_south):
         # %matplotlib widget
         dw.map.plot_cables3D(df_north, df_south, bathy, xlon, ylat)
 
+        # Convert the coordinates to UTM
+        utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
+        utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
 
-        # # Convert the coordinates to UTM
-        # utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
-        # utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
-
-        # # Change the reference point to the last point
-        # x0, y0 = utm_xf - utm_x0, utm_y0 - utm_y0
-        # xf, yf = utm_xf - utm_xf, utm_yf - utm_y0
-
-        # # Convert the coordinates of the cables to UTM
-        # utm_north = dw.map.latlon_to_utm(df_north['lon'], df_north['lat'])
-        # utm_south = dw.map.latlon_to_utm(df_south['lon'], df_south['lat'])
-
-        # # Change the reference point to the last point for the cables
-        # coord_north = np.vstack((utm_xf - utm_north[0], utm_north[1] - utm_y0))
-        # coord_south = np.vstack((utm_xf - utm_south[0], utm_south[1] - utm_y0))
+        # Change the reference point to the last point
+        x0, y0 = utm_xf - utm_x0, utm_y0 - utm_y0
+        xf, yf = utm_xf - utm_xf, utm_yf - utm_y0
 
         # # Create vectors of coordinates
-        # utm_x = np.linspace(utm_x0, utm_xf, len(xlon))
-        # utm_y = np.linspace(utm_y0, utm_yf, len(ylat))
-        # x = np.linspace(x0, xf, len(xlon))
-        # y = np.linspace(y0, yf, len(ylat))
+        utm_x = np.linspace(utm_x0, utm_xf, len(xlon))
+        utm_y = np.linspace(utm_y0, utm_yf, len(ylat))
+        x = np.linspace(x0, xf, len(xlon))
+        y = np.linspace(y0, yf, len(ylat))
 
-        # # Put everything in the pandas dataframes
-        # df_north['utm_x'] = utm_north[0]
-        # df_north['utm_y'] = utm_north[1]
-        # df_north['x'] = coord_north[0]
-        # df_north['y'] = coord_north[1]
-        # df_south['utm_x'] = utm_south[0]
-        # df_south['utm_y'] = utm_south[1]
-        # df_south['x'] = coord_south[0]
-        # df_south['y'] = coord_south[1]
-
-
-        # # Save the dataframes
-        # df_north.to_csv('data/north_DAS_multicoord.csv', index=False)
-        # df_south.to_csv('data/south_DAS_multicoord.csv', index=False)
-
-
-        # dw.map.plot_cables2D(df_north['x'], coord_south, bathy, x, y)
-        # dw.map.plot_cables2D(utm_north, utm_south, bathy, utm_x, utm_y)
-
+        x = np.linspace(x0, xf, len(xlon))
+        y = np.linspace(y0, yf, len(ylat))
 
         dw.map.plot_cables3D_m(df_north, df_south, bathy, x, y)
 
@@ -80,7 +54,7 @@ def main(url_north, url_south):
         plt.close('all')
 
         # Download some DAS data
-        filepath = dw.data_handle.dl_file(url_south)
+        filepath = dw.data_handle.dl_file(url_north)
 
         # Read HDF5 files and access metadata
         # Get the acquisition parameters for the data folder
@@ -99,7 +73,7 @@ def main(url_north, url_south):
         # ### Select the desired channels and channel interval
 
 
-        selected_channels_m = [20000, 86000, 10]  # list of values in meters corresponding to the starting,
+        selected_channels_m = [20000, 66000, 10]  # list of values in meters corresponding to the starting,
                                                 # ending and step wanted channels along the FO Cable
                                                 # selected_channels_m = [ChannelStart_m, ChannelStop_m, ChannelStep_m]
                                                 # in meters
@@ -127,7 +101,7 @@ def main(url_north, url_south):
         fmin = 14
         fmax = 30
         fk_filter = dw.dsp.hybrid_ninf_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, 
-                                        cs_min=1350, cp_min=1450, cp_max=2000, cs_max=2450, fmin=fmin, fmax=fmax, display_filter=False)
+                                        cs_min=1350, cp_min=1450, cp_max=2000, cs_max=2450, fmin=fmin, fmax=fmax, display_filter=True)
 
         # Print the compression ratio given by the sparse matrix usage
         dw.tools.disp_comprate(fk_filter)
@@ -235,7 +209,7 @@ def main(url_north, url_south):
         Nbiter = 10
 
         # Set every cable positions 
-        X, Y, Z = coord_north[0], coord_north[1], np.zeros_like(coord_north[0])
+        X, Y, Z = df_north['x'], df_north['y'], np.zeros_like(df_north['x'])
         cable_pos = np.array([X, Y, Z]).T
 
         # Compute the arrival times
@@ -251,7 +225,7 @@ def main(url_north, url_south):
         Ti_noisy = Ti + np.random.normal(0, 1, Ti.shape)  # 0.1 s of noise
         # Calc x distance from the cable positions
         # actual_dist = np.sqrt((pos[0] - coord_north[0])**2 + (pos[1] - coord_north[1])**2)
-        actual_dist = np.sqrt(coord_north[0]**2 + coord_north[1] **2)
+        actual_dist = np.sqrt(df_north['x']**2 + df_north['y'] **2).to_numpy()
         # Plot the noisy arrival times
 
         plt.figure()
@@ -288,8 +262,8 @@ def main(url_north, url_south):
         rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay')
         plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower')
         # Plot the cable location in 2D
-        ax.plot(coord_north[0], coord_north[1], 'tab:red', label='North cable')
-        ax.plot(coord_south[0], coord_south[1], 'tab:orange', label='South cable')
+        ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable')
+        ax.plot(df_north['x'], df_north['y'], 'tab:orange', label='South cable')
         plt.plot(pos[0], pos[1], 'o', color='tab:blue', label='True whale pos')
         plt.plot(n[0], n[1], 'x', color='tab:red', label='Predicted whale pos' )
         plt.plot(n_noisy[0], n_noisy[1], '.', color='tab:green', label='Predicted whale pos, noisy times' )
