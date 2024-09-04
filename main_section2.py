@@ -23,8 +23,6 @@ def main():
     dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
     dw.map.plot_cables3D(df_north, df_south, bathy, xlon, ylat)
 
-
-
     utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
     utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
 
@@ -38,7 +36,7 @@ def main():
     x = np.linspace(x0, xf, len(xlon))
     y = np.linspace(y0, yf, len(ylat))
 
-
+    # Plot the cables geometry in local coordinates
     dw.map.plot_cables2D_m(df_north, df_south, bathy, x, y)
     dw.map.plot_cables3D_m(df_north, df_south, bathy, x, y)
 
