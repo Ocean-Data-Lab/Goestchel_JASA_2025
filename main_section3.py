@@ -10,38 +10,90 @@ plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
 
 
-def main():
-    # Plot cable positions
-    # Import the cable location
-    df_north = pd.read_csv('data/north_DAS_multicoord.csv')
-    df_south = pd.read_csv('data/south_DAS_multicoord.csv')
+def main(url_north, url_south):
 
-    # Import the bathymetry data
-    bathy, xlon, ylat = dw.map.load_bathymetry('data/GMRT_OOI_RCA_Cables.grd')
+    # Download some DAS data
+    filepath, filename = dw.data_handle.dl_file(url_north)
 
-    dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
+    # Read HDF5 files and access metadata
+    # Get the acquisition parameters for the data folder
+    metadata = dw.data_handle.get_acquisition_parameters(filepath, interrogator='optasense')
+    fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
 
-    # dw.map.plot_cables3D(df_north, df_south, bathy, xlon, ylat)
+    print(f'Sampling frequency: {metadata["fs"]} Hz')
+    print(f'Channel spacing: {metadata["dx"]} m')
+    print(f'Gauge length: {metadata["GL"]} m')
+    print(f'File duration: {metadata["ns"] / metadata["fs"]} s')
+    print(f'Cable max distance: {metadata["nx"] * metadata["dx"]/1e3:.1f} km')
+    print(f'Number of channels: {metadata["nx"]}')
+    print(f'Number of time samples: {metadata["ns"]}')
 
-    # utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
-    # utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
 
-    # # Change the reference point to the last point
-    # x0, y0 = utm_xf - utm_x0, utm_y0 - utm_y0
-    # xf, yf = utm_xf - utm_xf, utm_yf - utm_y0
+    # ### Select the desired channels and channel interval
 
-    # # # Create vectors of coordinates
-    # utm_x = np.linspace(utm_x0, utm_xf, len(xlon))
-    # utm_y = np.linspace(utm_y0, utm_yf, len(ylat))
-    # x = np.linspace(x0, xf, len(xlon))
-    # y = np.linspace(y0, yf, len(ylat))
 
-    # x = np.linspace(x0, xf, len(xlon))
-    # y = np.linspace(y0, yf, len(ylat))
+    selected_channels_m = [12000, 66000, 10]  # list of values in meters corresponding to the starting,
+                                            # ending and step wanted channels along the FO Cable
+                                            # selected_channels_m = [ChannelStart_m, ChannelStop_m, ChannelStep_m]
+                                            # in meters
 
-    # dw.map.plot_cables2D(df_north, df_south, bathy, utm_x, utm_y)
-    # dw.map.plot_cables3D_m(df_north, df_south, bathy, x, y)
+    selected_channels = [int(selected_channels_m // dx) for selected_channels_m in
+                    selected_channels_m]  # list of values in channel number (spatial sample) corresponding to the starting, ending and step wanted
+                                            # channels along the FO Cable
+                                            # selected_channels = [ChannelStart, ChannelStop, ChannelStep] in channel
+                                            # numbers
+
+    print('Begin channel #:', selected_channels[0], 
+    ', End channel #: ',selected_channels[1], 
+    ', step: ',selected_channels[2], 
+    'equivalent to ',selected_channels[2]*dx,' m')
+
+
+    # ### Load raw DAS data
+    # 
+    # Loads the data using the pre-defined slected channels. 
+
+    tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
+
+    # Create the f-k filter 
+    fk_params = {
+    'c_min': 1400.,
+    'c_max': 5000.,
+    'fmin': 14.,
+    'fmax': 28.
+    }
+
+
+    fk_filter = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, fk_params=fk_params, display_filter=True)
+
+    # Print the compression ratio given by the sparse matrix usage
+    dw.tools.disp_comprate(fk_filter)
+
+    # Apply the f-k filter to the data, returns spatio-temporal strain matrix
+    trf_fk = dw.dsp.fk_filter_sparsefilt(tr, fk_filter, tapering=True)
+    dw.plot.plot_fk_domain(tr, fs, dx, selected_channels, fileBeginTimeUTC, fig_size=(14, 10), v_min=0, v_max=0.000025, fk_params=fk_params)
+
+    # Delete the raw data to free memory
+    del tr
+
+    dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC, v_max=0.3)
+
+    # Plot the SNR
+    SNR = dw.dsp.snr_tr_array(trf_fk)
+    dw.plot.snr_matrix(SNR, time, dist, 20, fileBeginTimeUTC)
+
+    return
+
 
 
 if __name__ == '__main__':
-    main()
+        # The dataset of this example is constituted of 60s time series along the north and south cables
+    url_north = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/'\
+            'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/'\
+            'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
+
+    url_south = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/SouthCable/TransmitFiber/'\
+            'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-01T16_09_15-0700/'\
+            'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-04T020014Z.h5'
+
+    main(url_north, url_south)
