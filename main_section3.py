@@ -10,44 +10,53 @@ plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
 
 
-def main(url_north, selected_channels_m):
+def main(url, selected_channels_m):
+        # North cable plots
+        if len(url_north) == 1: 
+                # Download some DAS data
+                filepath, filename = dw.data_handle.dl_file(url)
 
-        # Download some DAS data
-        filepath, filename = dw.data_handle.dl_file(url_north)
+                # Read HDF5 files and access metadata
+                # Get the acquisition parameters for the data folder
+                metadata = dw.data_handle.get_acquisition_parameters(filepath, interrogator='optasense')
+                fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
 
-        # Read HDF5 files and access metadata
-        # Get the acquisition parameters for the data folder
-        metadata = dw.data_handle.get_acquisition_parameters(filepath, interrogator='optasense')
-        fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
-
-        print(f'Sampling frequency: {metadata["fs"]} Hz')
-        print(f'Channel spacing: {metadata["dx"]} m')
-        print(f'Gauge length: {metadata["GL"]} m')
-        print(f'File duration: {metadata["ns"] / metadata["fs"]} s')
-        print(f'Cable max distance: {metadata["nx"] * metadata["dx"]/1e3:.1f} km')
-        print(f'Number of channels: {metadata["nx"]}')
-        print(f'Number of time samples: {metadata["ns"]}')
-
-
-        # ### Select the desired channels and channel interval
-
-        selected_channels = [int(selected_channels_m // dx) for selected_channels_m in
-                        selected_channels_m]  # list of values in channel number (spatial sample) corresponding to the starting, ending and step wanted
-                                                # channels along the FO Cable
-                                                # selected_channels = [ChannelStart, ChannelStop, ChannelStep] in channel
-                                                # numbers
-
-        print('Begin channel #:', selected_channels[0], 
-        ', End channel #: ',selected_channels[1], 
-        ', step: ',selected_channels[2], 
-        'equivalent to ',selected_channels[2]*dx,' m')
+                print(f'Sampling frequency: {metadata["fs"]} Hz')
+                print(f'Channel spacing: {metadata["dx"]} m')
+                print(f'Gauge length: {metadata["GL"]} m')
+                print(f'File duration: {metadata["ns"] / metadata["fs"]} s')
+                print(f'Cable max distance: {metadata["nx"] * metadata["dx"]/1e3:.1f} km')
+                print(f'Number of channels: {metadata["nx"]}')
+                print(f'Number of time samples: {metadata["ns"]}')
 
 
-        # ### Load raw DAS data
-        # 
-        # Loads the data using the pre-defined slected channels. 
+                # ### Select the desired channels and channel interval
 
-        tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
+                selected_channels = [int(selected_channels_m // dx) for selected_channels_m in
+                                selected_channels_m]  # list of values in channel number (spatial sample) corresponding to the starting, ending and step wanted
+                                                        # channels along the FO Cable
+                                                        # selected_channels = [ChannelStart, ChannelStop, ChannelStep] in channel
+                                                        # numbers
+
+                print('Begin channel #:', selected_channels[0], 
+                ', End channel #: ',selected_channels[1], 
+                ', step: ',selected_channels[2], 
+                'equivalent to ',selected_channels[2]*dx,' m')
+
+
+                ### Load raw DAS data
+                
+                # Loads the data using the pre-defined selected channels. 
+
+                tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
+        
+        # South cable plots
+        else:
+                # Download the DAS data
+                filepath, filename = [dw.data_handle.dl_file(url_i) for url_i in url]
+
+                metadata = dw.data_handle.get_acquisition_parameters(filepath[0], interrogator='optasense')
+                fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
 
         # Create the f-k filter 
         fk_params = {
