@@ -10,10 +10,11 @@ plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
 
 
-def main(url, selected_channels_m):
+def main(urls, selected_channels_m):
         # North cable plots
-        if len(url) == 1: 
+        if len(urls) == 1: 
                 # Download some DAS data
+                url = urls[0]
                 filepath, filename = dw.data_handle.dl_file(url)
 
                 # Read HDF5 files and access metadata
@@ -49,14 +50,13 @@ def main(url, selected_channels_m):
                 # Loads the data using the pre-defined selected channels. 
 
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
-        
         # South cable plots
         else:
                 # Download the DAS data
-
                 filepaths = []
                 filenames = []
-                for url in url:
+                for url in urls:
+                        print(url)
                         filepath, filename = dw.data_handle.dl_file(url)
                         filepaths.append(filepath)
                         filenames.append(filename)
@@ -106,9 +106,9 @@ def main(url, selected_channels_m):
 if __name__ == '__main__':
 
         # The dataset of this example is constituted of 60s time series along the north and south cables
-        url_north = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/'\
+        url_north = ['http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/'\
                 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/'\
-                'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
+                'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5']
         
         selected_channels_m_north = [12000, 66000, 10]  # list of values in meters corresponding to the starting,
                                                         # ending and step wanted channels along the FO Cable
@@ -116,13 +116,13 @@ if __name__ == '__main__':
                                                         # in meters
 
         url_south = [
-                'http://piweb.ooirsn.uw.edu/das/data/Optasense/SouthCable/TransmitFiber/'\
-                'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-01T16_09_15-0700/'\
-                'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-04T015914Z.h5',
-                'http://piweb.ooirsn.uw.edu/das/data/Optasense/SouthCable/TransmitFiber/'\
-                'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-01T16_09_15-0700/'\
-                'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-04T020014Z.h5'
-                ]       
+        'http://piweb.ooirsn.uw.edu/das/data/Optasense/SouthCable/TransmitFiber/'\
+        'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-01T16_09_15-0700/'\
+        'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-04T015914Z.h5',
+        'http://piweb.ooirsn.uw.edu/das/data/Optasense/SouthCable/TransmitFiber/'\
+        'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-01T16_09_15-0700/'\
+        'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-04T020014Z.h5'
+        ]         
         
         selected_channels_m_south = [12000, 95000, 10]
 
