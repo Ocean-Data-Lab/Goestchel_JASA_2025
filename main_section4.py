@@ -76,9 +76,9 @@ def main(urls, selected_channels_m):
         # Create the f-k filter 
         fk_params = {
         'c_min': 1400.,
-        'c_max': 5000.,
+        'c_max': 3300.,
         'fmin': 14.,
-        'fmax': 28.
+        'fmax': 30.
         }
 
 
