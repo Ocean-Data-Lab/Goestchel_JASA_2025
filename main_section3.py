@@ -12,7 +12,7 @@ plt.rcParams['axes.labelpad'] = 20
 
 def main(url, selected_channels_m):
         # North cable plots
-        if len(url_north) == 1: 
+        if len(url) == 1: 
                 # Download some DAS data
                 filepath, filename = dw.data_handle.dl_file(url)
 
@@ -53,10 +53,25 @@ def main(url, selected_channels_m):
         # South cable plots
         else:
                 # Download the DAS data
-                filepath, filename = [dw.data_handle.dl_file(url_i) for url_i in url]
 
-                metadata = dw.data_handle.get_acquisition_parameters(filepath[0], interrogator='optasense')
+                filepaths = []
+                filenames = []
+                for url in url:
+                        filepath, filename = dw.data_handle.dl_file(url)
+                        filepaths.append(filepath)
+                        filenames.append(filename)
+
+                metadata = dw.data_handle.get_acquisition_parameters(filepaths[0], interrogator='optasense')
                 fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
+
+                selected_channels = dw.data_handle.get_selected_channels(selected_channels_m, dx)
+
+                timestamp = '2021-11-04 02:00:02.025000'
+                duration = 60
+                selected_channels = dw.data_handle.get_selected_channels(selected_channels_m, dx)
+
+                # Load the data
+                tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, duration)
 
         # Create the f-k filter 
         fk_params = {
