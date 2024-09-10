@@ -74,8 +74,8 @@ def main(urls, selected_channels_m):
                 # Load the data
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, duration)
 
-        # Create the f-k filter 
-        fk_params = {
+        # Create the f-k filter
+        fk_params = {   # Parameters for the signal
         'c_min': 1400.,
         'c_max': 3300.,
         'fmin': 14.,
