@@ -1,10 +1,10 @@
 
-# Load and exploit bathymetric data from OOI RCA cables
-
-import pandas as pd
+# Libraries import
 import numpy as np
+import scipy.signal as sp
 import matplotlib.pyplot as plt
 import das4whales as dw
+import cv2
 
 plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
@@ -124,8 +124,57 @@ def main(urls, selected_channels_m):
         SNR_hf = dw.dsp.snr_tr_array(nmf_m_HF)
         SNR_lf = dw.dsp.snr_tr_array(nmf_m_LF)
 
+        # Free memory
+        del nmf_m_HF, nmf_m_LF
+
         dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
         dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
+
+        # Create the Gabor filters for envelope clustering
+        # Detection speed:
+        c0 = 1500 # m/s
+        theta_c0 = dw.improcess.angle_fromspeed(c0, fs, dx, selected_channels)
+
+        gabfilt_up, gabfilt_down = dw.improcess.gabor_filt_design(theta_c0, plot=True)
+
+        # Smooth image:
+        images = [SNR_hf, SNR_lf]
+        for image in images:
+            image[image < 0] = 0
+            # image = dw.improcess.scale_pixels(image) * 255 BUG
+            imagebin = dw.improcess.binning(image, 1/10, 1/10)
+
+            fimage = cv2.filter2D(imagebin, cv2.CV_64F, gabfilt_up) + cv2.filter2D(imagebin, cv2.CV_64F, gabfilt_down)
+
+            plt.figure(figsize=(10, 6))
+            plt.imshow(image, aspect='equal', origin='lower', cmap='turbo', vmin=0)
+            plt.colorbar(label='Normalized amplitude', aspect=30, pad=0.015)
+            plt.xlabel('Time indices')
+            plt.ylabel('Distance indices')
+            plt.show()
+
+            # Threshold the image
+            threshold = 9500
+            binary_image = fimage > threshold
+
+            # Create the mask
+            mask = cv2.filter2D(binary_image.astype(float), cv2.CV_64F, gabfilt_up) + cv2.filter2D(binary_image.astype(float), cv2.CV_64F, gabfilt_down)
+            threshold2 = 150
+            mask = mask > threshold2
+
+            plt.figure(figsize=(10, 6))
+            plt.imshow(mask, aspect='equal', origin='lower', cmap='gray')
+            plt.colorbar()
+            plt.xlabel('Time indices')
+            plt.ylabel('Distance indices')
+            plt.show()
+
+            mask_sparse = dw.improcess.binning(mask, 10, 10)
+
+            # Apply the mask to the original trace
+            masked_tr = dw.improcess.apply_smooth_mask(trf_fk, mask_sparse)
+            dw.plot.plot_tx(sp.hilbert(masked_tr, axis=1), time, dist, fileBeginTimeUTC, fig_size=(12, 10), v_min=0, v_max=0.4)
+        
         return      
 
 

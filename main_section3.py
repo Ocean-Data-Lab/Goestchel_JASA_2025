@@ -1,14 +1,13 @@
 
-# Load and exploit bathymetric data from OOI RCA cables
-
+# Libraries import
 import pandas as pd
 import numpy as np
+import scipy.signal as sp
 import matplotlib.pyplot as plt
 import das4whales as dw
 
 plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
-
 
 def main(urls, selected_channels_m):
         # North cable plots
@@ -94,7 +93,7 @@ def main(urls, selected_channels_m):
         # Delete the raw data to free memory
         del tr
 
-        dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC, v_max=0.3)
+        dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, v_max=0.4)
 
         # Plot the SNR
         SNR = dw.dsp.snr_tr_array(trf_fk)
