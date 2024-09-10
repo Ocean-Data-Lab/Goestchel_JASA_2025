@@ -5,6 +5,7 @@ import scipy.signal as sp
 import matplotlib.pyplot as plt
 import das4whales as dw
 import cv2
+import gc
 
 plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
@@ -125,7 +126,8 @@ def main(urls, selected_channels_m):
         SNR_lf = dw.dsp.snr_tr_array(nmf_m_LF)
 
         # Free memory
-        del nmf_m_HF, nmf_m_LF
+        del nmf_m_HF, nmf_m_LF, trf_fk
+        gc.collect()
 
         dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
         dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
@@ -139,42 +141,29 @@ def main(urls, selected_channels_m):
 
         # Smooth image:
         images = [SNR_hf, SNR_lf]
-        for image in images:
-            image[image < 0] = 0
-            # image = dw.improcess.scale_pixels(image) * 255 BUG
+        labels = ['HF', 'LF']
+        for i,im in enumerate(images):
+            im[im < 0] = 0
+            image = dw.improcess.scale_pixels(im) * 255
             imagebin = dw.improcess.binning(image, 1/10, 1/10)
 
             fimage = cv2.filter2D(imagebin, cv2.CV_64F, gabfilt_up) + cv2.filter2D(imagebin, cv2.CV_64F, gabfilt_down)
 
-            plt.figure(figsize=(10, 6))
-            plt.imshow(image, aspect='equal', origin='lower', cmap='turbo', vmin=0)
-            plt.colorbar(label='Normalized amplitude', aspect=30, pad=0.015)
-            plt.xlabel('Time indices')
-            plt.ylabel('Distance indices')
-            plt.show()
+            fimage = dw.improcess.scale_pixels(fimage)
 
             # Threshold the image
-            threshold = 9500
-            binary_image = fimage > threshold
-
-            # Create the mask
-            mask = cv2.filter2D(binary_image.astype(float), cv2.CV_64F, gabfilt_up) + cv2.filter2D(binary_image.astype(float), cv2.CV_64F, gabfilt_down)
-            threshold2 = 150
-            mask = mask > threshold2
-
-            plt.figure(figsize=(10, 6))
-            plt.imshow(mask, aspect='equal', origin='lower', cmap='gray')
-            plt.colorbar()
-            plt.xlabel('Time indices')
-            plt.ylabel('Distance indices')
-            plt.show()
+            threshold = 0.4
+            mask = fimage > threshold
 
             mask_sparse = dw.improcess.binning(mask, 10, 10)
+            # Zero padd the mask to be the same size as the original trace
+            diff = np.maximum(np.array(im.shape) - np.array(mask_sparse.shape), 0)
+            mask_sparse_pad = np.pad(mask_sparse, ((0, diff[0]), (0, diff[1])), mode='edge')
 
             # Apply the mask to the original trace
-            masked_tr = dw.improcess.apply_smooth_mask(trf_fk, mask_sparse)
-            dw.plot.plot_tx(sp.hilbert(masked_tr, axis=1), time, dist, fileBeginTimeUTC, fig_size=(12, 10), v_min=0, v_max=0.4)
-        
+            masked_tr = dw.improcess.apply_smooth_mask(im, mask_sparse_pad)
+            dw.plot.snr_matrix(masked_tr, time, dist, 20, fileBeginTimeUTC, title=f'mf detect: {labels[i]}')
+
         return      
 
 
@@ -185,7 +174,7 @@ if __name__ == '__main__':
                 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/'\
                 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5']
         
-        selected_channels_m_north = [12000, 66000, 10]  # list of values in meters corresponding to the starting,
+        selected_channels_m_north = [12000, 66000, 5]  # list of values in meters corresponding to the starting,
                                                         # ending and step wanted channels along the FO Cable
                                                         # selected_channels_m = [ChannelStart_m, ChannelStop_m, ChannelStep_m]
                                                         # in meters
@@ -199,7 +188,8 @@ if __name__ == '__main__':
         'South-C1-LR-95km-P1kHz-GL50m-SP2m-FS200Hz_2021-11-04T020014Z.h5'
         ]         
         
-        selected_channels_m_south = [12000, 95000, 10]
+        selected_channels_m_south = [12000, 95000, 5]
 
         main(url_north, selected_channels_m_north)
+        gc.collect()
         main(url_south, selected_channels_m_south)
