@@ -105,7 +105,8 @@ def main(urls, selected_channels_m):
         noise = dw.dsp.moving_average_matrix(abs(sp.hilbert(noise, axis=1)), window_size)
 
         # Delete the raw data to free memory
-        del tr
+        del tr, SNR_noise
+        gc.collect()
 
         # Create the matched filters for detection
         HF_note = dw.detect.gen_hyperbolic_chirp(17.8, 28.8, 0.68, fs)
@@ -118,13 +119,13 @@ def main(urls, selected_channels_m):
         nmf_m_HF = dw.detect.calc_nmf_correlogram(trf_fk, HF_note)
         nmf_m_LF = dw.detect.calc_nmf_correlogram(trf_fk, LF_note)
 
-        # Normalize the matched filtered traces
-        nmf_m_HF = dw.dsp.normalize_std(nmf_m_HF)
-        nmf_m_LF = dw.dsp.normalize_std(nmf_m_LF)
-
         # Free memory
         del trf_fk
         gc.collect()
+
+        # Normalize the matched filtered traces
+        nmf_m_HF = dw.dsp.normalize_std(nmf_m_HF)
+        nmf_m_LF = dw.dsp.normalize_std(nmf_m_LF)
 
         # Plot the SNR of the matched filter
         SNR_hf = 20 * np.log10(abs(sp.hilbert(nmf_m_HF, axis=1)) / abs(sp.hilbert(noise, axis=1)))
