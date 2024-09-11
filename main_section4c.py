@@ -97,12 +97,12 @@ def main(urls, selected_channels_m):
         trf_fk = dw.dsp.fk_filter_sparsefilt(tr, fk_filter, tapering=True)
         noise = dw.dsp.fk_filter_sparsefilt(tr, fk_filter_noise, tapering=True)
 
+        SNR_noise = dw.dsp.snr_tr_array(noise)
+        dw.plot.snr_matrix(SNR_noise, time, dist, 20, fileBeginTimeUTC, title='Noise field')
+
         noise = dw.dsp.normalize_std(noise)
         window_size = 100
         noise = dw.dsp.moving_average_matrix(abs(sp.hilbert(noise, axis=1)), window_size)
-
-        SNR_noise = dw.dsp.snr_tr_array(noise)
-        dw.plot.snr_matrix(SNR_noise, time, dist, 20, fileBeginTimeUTC, title='Noise Field')
 
         # Delete the raw data to free memory
         del tr
@@ -117,6 +117,10 @@ def main(urls, selected_channels_m):
         # Apply the matched filter to the data 
         nmf_m_HF = dw.detect.calc_nmf_correlogram(trf_fk, HF_note)
         nmf_m_LF = dw.detect.calc_nmf_correlogram(trf_fk, LF_note)
+
+        # Normalize the matched filtered traces
+        nmf_m_HF = dw.dsp.normalize_std(nmf_m_HF)
+        nmf_m_LF = dw.dsp.normalize_std(nmf_m_LF)
 
         # Free memory
         del trf_fk
