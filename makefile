@@ -5,6 +5,7 @@ PYTHON = python
 SRC2 = main_section2.py
 SRC3 = main_section3.py
 SRC4 = main_section4.py
+SRC4c = main_section4c.py
 SRC5 = main_section5.py
 
 # Define the virtual environment directory
@@ -27,6 +28,9 @@ section3:
 
 section4:
 	$(ACTIVATE_VENV) && $(PYTHON) $(SRC4)
+
+section4c:
+	$(ACTIVATE_VENV) && $(PYTHON) $(SRC4c)
 
 section5:
 	$(ACTIVATE_VENV) && $(PYTHON) $(SRC5)
