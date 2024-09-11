@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import das4whales as dw
 import cv2
 import gc
+from tqdm import tqdm
 
 plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
@@ -89,16 +90,12 @@ def main(urls, selected_channels_m):
         'fmax': 48.
         }
 
-
         fk_filter = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, fk_params=fk_params, display_filter=False)
         fk_filter_noise = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, fk_params_n, display_filter=False)
 
         # Apply the f-k filter to the data, returns spatio-temporal strain matrix
         trf_fk = dw.dsp.fk_filter_sparsefilt(tr, fk_filter, tapering=True)
         noise = dw.dsp.fk_filter_sparsefilt(tr, fk_filter_noise, tapering=True)
-
-        SNR_noise = dw.dsp.snr_tr_array(noise)
-        dw.plot.snr_matrix(SNR_noise, time, dist, 20, fileBeginTimeUTC, title='Noise field')
 
         noise = dw.dsp.normalize_std(noise)
         window_size = 100
@@ -118,59 +115,110 @@ def main(urls, selected_channels_m):
         nmf_m_HF = dw.detect.calc_nmf_correlogram(trf_fk, HF_note)
         nmf_m_LF = dw.detect.calc_nmf_correlogram(trf_fk, LF_note)
 
-        # Normalize the matched filtered traces
-        nmf_m_HF = dw.dsp.normalize_std(nmf_m_HF)
-        nmf_m_LF = dw.dsp.normalize_std(nmf_m_LF)
-
         # Free memory
         del trf_fk
         gc.collect()
+
+        ######  Perform the time picking on the matched filtered traces ######
+        SNR_hfn = dw.dsp.snr_tr_array(nmf_m_HF)
+        SNR_lfn = dw.dsp.snr_tr_array(nmf_m_LF)
+
+        SNR_hfn = cv2.GaussianBlur(SNR_hfn, (9, 73), 0)
+        SNR_lfn = cv2.GaussianBlur(SNR_lfn, (9, 73), 0)
+
+        # Threshold the SNR matrix in an efficient way
+        SNR_hfn = np.where(SNR_hfn < 0, 0, SNR_hfn)
+        SNR_lfn = np.where(SNR_lfn < 0, 0, SNR_lfn)
+
+        ipi = 2 # Inter pulse interval in seconds
+        th = 4. # Threshold for the peak detection in dB
+
+        peaks_indexes_HF = []
+        peaks_indexes_LF = []
+
+        for corr in tqdm(SNR_hfn, desc="Picking times"):
+                peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)
+                peaks_indexes_HF.append(peaks_indexes)
+
+        for corr in tqdm(SNR_lfn, desc="Picking times"):
+                peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)  
+                peaks_indexes_LF.append(peaks_indexes)
+
+        peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
+        peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
+
+        print('HF detections before denoising:', len(peaks_indexes_tp_HF[0]))
+        print('LF detections before denoising:', len(peaks_indexes_tp_LF[0]))
+
+        plt.figure(figsize=(12,10))
+        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (km)')
+        plt.legend(loc='upper right')
+        plt.show()
+
+        plt.figure(figsize=(12,10))
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (km)')
+        plt.legend(loc='upper right')
+        plt.show()
+
+        # Free memory
+        del SNR_lfn, SNR_hfn, peaks_indexes_HF, peaks_indexes_LF, peaks_indexes_tp_HF, peaks_indexes_tp_LF
+        gc.collect()
+        
+        ########  Perform the time picking on the denoised mf traces #########
+
+        # Normalize the matched filtered traces
+        nmf_m_HF = dw.dsp.normalize_std(nmf_m_HF)
+        nmf_m_LF = dw.dsp.normalize_std(nmf_m_LF)
 
         # Plot the SNR of the matched filter
         SNR_hf = 20 * np.log10(abs(sp.hilbert(nmf_m_HF, axis=1)) / abs(sp.hilbert(noise, axis=1)))
         SNR_lf = 20 * np.log10(abs(sp.hilbert(nmf_m_LF, axis=1)) / abs(sp.hilbert(noise, axis=1)))
 
+        # Free memory
+        del nmf_m_HF, nmf_m_LF, noise
+        gc.collect()
+
         SNR_hf = cv2.GaussianBlur(SNR_hf, (9, 73), 0)
         SNR_lf = cv2.GaussianBlur(SNR_lf, (9, 73), 0)
 
-        # Free memory
-        del nmf_m_HF, nmf_m_LF
-        gc.collect()
+        # Threshold the SNR matrix in an efficient way
+        SNR_hf = np.where(SNR_hf < 0, 0, SNR_hf)
+        SNR_lf = np.where(SNR_lf < 0, 0, SNR_lf)
 
-        # dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
-        # dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
+        peaks_indexes_HF = []
+        peaks_indexes_LF = []
 
-        # Create the Gabor filters for envelope clustering
-        # Detection speed:
-        # c0 = 1500 # m/s
-        # theta_c0 = dw.improcess.angle_fromspeed(c0, fs, dx, selected_channels)
+        for corr in tqdm(SNR_hf, desc="Picking times"):
+                peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)
+                peaks_indexes_HF.append(peaks_indexes)
 
-        # gabfilt_up, gabfilt_down = dw.improcess.gabor_filt_design(theta_c0, plot=True)
+        for corr in tqdm(SNR_lf, desc="Picking times"):
+                peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)  
+                peaks_indexes_LF.append(peaks_indexes)
 
-        # # Smooth image:
-        # images = [SNR_hf, SNR_lf]
-        # labels = ['HF', 'LF']
-        # for i,im in enumerate(images):
-        #     im[im < 0] = 0
-        #     image = dw.improcess.scale_pixels(im) * 255
-        #     imagebin = dw.improcess.binning(image, 1/10, 1/10)
+        peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
+        peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
-        #     fimage = cv2.filter2D(imagebin, cv2.CV_64F, gabfilt_up) + cv2.filter2D(imagebin, cv2.CV_64F, gabfilt_down)
+        print('HF detections after denoising:', len(peaks_indexes_tp_HF[0]))
+        print('LF detections after denoising:', len(peaks_indexes_tp_LF[0]))
 
-        #     fimage = dw.improcess.scale_pixels(fimage)
+        plt.figure(figsize=(12,10))
+        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (km)')
+        plt.legend(loc='upper right')
+        plt.show()
 
-        #     # Threshold the image
-        #     threshold = 0.2
-        #     mask = fimage > threshold
-
-        #     mask_sparse = dw.improcess.binning(mask, 10, 10)
-        #     # Zero padd the mask to be the same size as the original trace
-        #     diff = np.maximum(np.array(im.shape) - np.array(mask_sparse.shape), 0)
-        #     mask_sparse_pad = np.pad(mask_sparse, ((0, diff[0]), (0, diff[1])), mode='edge')
-
-        #     # Apply the mask to the original trace
-        #     masked_tr = dw.improcess.apply_smooth_mask(im, mask_sparse_pad)
-        #     dw.plot.snr_matrix(masked_tr, time, dist, 20, fileBeginTimeUTC, title=f'mf detect: {labels[i]}')
+        plt.figure(figsize=(12,10))
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (km)')
+        plt.legend(loc='upper right')
+        plt.show()
 
         return      
 
