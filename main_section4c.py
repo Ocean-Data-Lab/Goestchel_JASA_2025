@@ -160,7 +160,7 @@ def main(urls, selected_channels_m):
             fimage = dw.improcess.scale_pixels(fimage)
 
             # Threshold the image
-            threshold = 0.4
+            threshold = 0.2
             mask = fimage > threshold
 
             mask_sparse = dw.improcess.binning(mask, 10, 10)
