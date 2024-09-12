@@ -161,7 +161,7 @@ def main(urls, selected_channels_m):
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.legend(loc='upper right')
-        plt.savefig(f"Figure_{fignum}.pdf")
+        plt.savefig(f"figs/Figure_{fignum}.pdf")
         fignum += 1
         # plt.show()
 
@@ -171,9 +171,12 @@ def main(urls, selected_channels_m):
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.legend(loc='upper right')
-        plt.savefig(f"Figure_{fignum}.pdf")
+        plt.savefig(f"figs/Figure_{fignum}.pdf")
         fignum += 1
         # plt.show()
+
+        # Make a count of the detections depending on IPI and threshold
+        thresholds = np.arange(2, 20, 20)
 
         # Free memory
         del SNR_lfn, SNR_hfn, peaks_indexes_HF, peaks_indexes_LF, peaks_indexes_tp_HF, peaks_indexes_tp_LF
@@ -222,7 +225,7 @@ def main(urls, selected_channels_m):
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.legend(loc='upper right')
-        plt.savefig(f"Figure_{fignum}.pdf")
+        plt.savefig(f"figs/Figure_{fignum}.pdf")
         fignum += 1        
         # plt.show()
 
@@ -231,7 +234,7 @@ def main(urls, selected_channels_m):
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.legend(loc='upper right')
-        plt.savefig(f"Figure_{fignum}.pdf")
+        plt.savefig(f"figs/Figure_{fignum}.pdf")
         fignum += 1        
         # plt.show()
 
