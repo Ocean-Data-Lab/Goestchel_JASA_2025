@@ -89,7 +89,6 @@ def main(urls, selected_channels_m):
         'fmax': 48.
         }
 
-
         fk_filter = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, fk_params=fk_params, display_filter=False)
         fk_filter_noise = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, fk_params_n, display_filter=False)
 

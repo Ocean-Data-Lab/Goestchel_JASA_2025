@@ -150,19 +150,30 @@ def main(urls, selected_channels_m):
         print('HF detections before denoising:', len(peaks_indexes_tp_HF[0]))
         print('LF detections before denoising:', len(peaks_indexes_tp_LF[0]))
 
-        plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5)
-        plt.xlabel('Time (s)')
-        plt.ylabel('Distance (km)')
-        plt.legend(loc='upper right')
-        plt.show()
+        cable = filename.split('-')[0]
+        if cable == 'North':
+                fignum = 28
+        if cable == 'South':
+                fignum = 32
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5)
+        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.legend(loc='upper right')
-        plt.show()
+        plt.savefig(f"Figure_{fignum}.pdf")
+        fignum += 1
+        # plt.show()
+
+
+        plt.figure(figsize=(12,10))
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5, rasterized=True)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Distance (km)')
+        plt.legend(loc='upper right')
+        plt.savefig(f"Figure_{fignum}.pdf")
+        fignum += 1
+        # plt.show()
 
         # Free memory
         del SNR_lfn, SNR_hfn, peaks_indexes_HF, peaks_indexes_LF, peaks_indexes_tp_HF, peaks_indexes_tp_LF
@@ -207,18 +218,22 @@ def main(urls, selected_channels_m):
         print('LF detections after denoising:', len(peaks_indexes_tp_LF[0]))
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5)
+        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.legend(loc='upper right')
-        plt.show()
+        plt.savefig(f"Figure_{fignum}.pdf")
+        fignum += 1        
+        # plt.show()
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5)
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.legend(loc='upper right')
-        plt.show()
+        plt.savefig(f"Figure_{fignum}.pdf")
+        fignum += 1        
+        # plt.show()
 
         return      
 
