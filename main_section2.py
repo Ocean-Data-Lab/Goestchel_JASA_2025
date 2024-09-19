@@ -18,6 +18,7 @@ def main():
 
     # Import the bathymetry data
     bathy, xlon, ylat = dw.map.load_bathymetry('data/GMRT_OOI_RCA_Cables.grd')
+    print(f'Origin of the corrdinates. Latitude = {ylat[0]}, Longitude = {xlon[-1]}')
 
     # Plot the cables geometry in lat/lon coordinates
     dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
