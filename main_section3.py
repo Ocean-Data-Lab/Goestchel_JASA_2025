@@ -49,6 +49,8 @@ def main(urls, selected_channels_m):
                 # Loads the data using the pre-defined selected channels. 
 
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
+                trf = dw.dsp.bp_filt(tr, fs, 14, 28)
+                dw.plot.plot_tx(sp.hilbert(trf, axis=1), time, dist, fileBeginTimeUTC, v_max=0.4)
         # South cable plots
         else:
                 # Download the DAS data
