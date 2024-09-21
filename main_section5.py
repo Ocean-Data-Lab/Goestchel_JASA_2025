@@ -8,6 +8,10 @@ import cv2
 import gc
 from tqdm import tqdm
 
+# Comment out these lines to enable the plots to display
+import matplotlib
+matplotlib.use('Agg')
+
 plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
 
@@ -22,6 +26,7 @@ def main(urls, selected_channels_m):
                 # Read HDF5 files and access metadata
                 # Get the acquisition parameters for the data folder
                 metadata = dw.data_handle.get_acquisition_parameters(filepath, interrogator='optasense')
+                metadata["cablename"] = filename.split('-')[0]
                 fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
 
                 print(f'Sampling frequency: {metadata["fs"]} Hz')
@@ -52,6 +57,7 @@ def main(urls, selected_channels_m):
                 # Loads the data using the pre-defined selected channels. 
 
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
+                metadata["fileBeginTimeUTC"] = fileBeginTimeUTC.strftime("%Y-%m-%d_%H:%M:%S")
         # South cable plots
         else:
                 # Download the DAS data
@@ -64,6 +70,7 @@ def main(urls, selected_channels_m):
                         filenames.append(filename)
 
                 metadata = dw.data_handle.get_acquisition_parameters(filepaths[0], interrogator='optasense')
+                metadata["cablename"] = filenames[0].split('-')[0]
                 fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
 
                 selected_channels = dw.data_handle.get_selected_channels(selected_channels_m, dx)
@@ -74,6 +81,7 @@ def main(urls, selected_channels_m):
 
                 # Load the data
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, duration)
+                metadata["fileBeginTimeUTC"] = fileBeginTimeUTC.strftime("%Y-%m-%d_%H:%M:%S")
 
         # Create the f-k filters
         fk_params = {   # Parameters for the signal
@@ -257,6 +265,14 @@ def main(urls, selected_channels_m):
 
         peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
+
+        # Save the time picking results
+        np.save(f'out/peaks_indexes_tp_HF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_HF)
+        np.save(f'out/peaks_indexes_tp_LF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_LF)
+
+        # Save the SNR matrixes 
+        np.save(f'out/SNR_hf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_hf)
+        np.save(f'out/SNR_lf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_lf)
 
         print('HF detections after denoising:', len(peaks_indexes_tp_HF[0]))
         print('LF detections after denoising:', len(peaks_indexes_tp_LF[0]))
