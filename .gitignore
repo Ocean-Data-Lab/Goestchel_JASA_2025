@@ -167,3 +167,6 @@ cython_debug/
 /figs
 # pdfs figures
 *.pdf
+
+# out folder
+/out
