@@ -164,21 +164,53 @@ def main(urls, selected_channels_m):
         if cable == 'South':
                 fignum = 32
 
+        # Sorth the sizes of the picks by SNR
+        sizes_hf = SNR_hfn[peaks_indexes_tp_HF[1], peaks_indexes_tp_HF[0]]
+        sizes_lf = SNR_lfn[peaks_indexes_tp_LF[1], peaks_indexes_tp_LF[0]]
+
+        # Scale the sizes of the picks
+        max_size = 20
+        min_size = 0.1
+
+        # Scale the sizes to the range [0, 1]
+        sizes_hf_scaled = min_size + (sizes_hf - np.min(sizes_hf)) / (np.max(sizes_hf) - np.min(sizes_hf)) * (max_size - min_size)
+        sizes_lf_scaled = min_size + (sizes_lf - np.min(sizes_lf)) / (np.max(sizes_lf) - np.min(sizes_lf)) * (max_size - min_size)
+
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5, rasterized=True)
+        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', s=sizes_hf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.legend(loc='upper right')
+        plt.title('HF note picks', loc='right')
+
+        # Legend
+        # Create a set of legend handles with different sizes
+        handles = [
+        plt.scatter([], [], s=min_size, color='b', label=f'Min SNR: {sizes_hf.min():.1f}'),
+        plt.scatter([], [], s=(min_size + max_size) / 2, color='b', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
+        plt.scatter([], [], s=max_size, color='b', label=f'Max SNR: {sizes_hf.max():.1f}')
+        ]
+
+        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
         plt.savefig(f"figs/Figure_{fignum}.pdf")
         fignum += 1
         # plt.show()
 
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5, rasterized=True)
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_hf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.legend(loc='upper right')
+        plt.title('LF note picks', loc='right')
+
+        # Legend
+        # Create a set of legend handles with different sizes
+        handles = [
+        plt.scatter([], [], s=min_size, color='b', label=f'Min SNR: {sizes_lf.min():.1f}'),
+        plt.scatter([], [], s=(min_size + max_size) / 2, color='b', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
+        plt.scatter([], [], s=max_size, color='b', label=f'Max SNR: {sizes_lf.max():.1f}')
+        ]
+
+        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
         plt.savefig(f"figs/Figure_{fignum}.pdf")
         fignum += 1
         # plt.show()
