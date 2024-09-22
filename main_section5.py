@@ -180,7 +180,7 @@ def main(urls, selected_channels_m):
         plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', s=sizes_hf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.title('HF note picks', loc='right')
+        plt.title(f'HF note picks_{metadata["cablename"]}', loc='right')
 
         # Legend
         # Create a set of legend handles with different sizes
@@ -197,10 +197,10 @@ def main(urls, selected_channels_m):
 
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_hf_scaled, rasterized=True)
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_lf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.title('LF note picks', loc='right')
+        plt.title(f'LF note picks_{metadata["cablename"]}', loc='right')
 
         # Legend
         # Create a set of legend handles with different sizes
@@ -299,32 +299,64 @@ def main(urls, selected_channels_m):
         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
         # Save the time picking results
-        np.save(f'out/peaks_indexes_tp_HF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_HF)
-        np.save(f'out/peaks_indexes_tp_LF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_LF)
+        # np.save(f'out/peaks_indexes_tp_HF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_HF)
+        # np.save(f'out/peaks_indexes_tp_LF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_LF)
 
-        # Save the SNR matrixes 
-        np.save(f'out/SNR_hf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_hf)
-        np.save(f'out/SNR_lf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_lf)
+        # # Save the SNR matrixes 
+        # np.save(f'out/SNR_hf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_hf)
+        # np.save(f'out/SNR_lf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_lf)
 
         print('HF detections after denoising:', len(peaks_indexes_tp_HF[0]))
         print('LF detections after denoising:', len(peaks_indexes_tp_LF[0]))
 
+                # Sorth the sizes of the picks by SNR
+        sizes_hf = SNR_hf[peaks_indexes_tp_HF[1], peaks_indexes_tp_HF[0]]
+        sizes_lf = SNR_lf[peaks_indexes_tp_LF[1], peaks_indexes_tp_LF[0]]
+
+        # Scale the sizes of the picks
+        max_size = 20
+        min_size = 0.1
+
+        # Scale the sizes to the range [0, 1]
+        sizes_hf_scaled = min_size + (sizes_hf - np.min(sizes_hf)) / (np.max(sizes_hf) - np.min(sizes_hf)) * (max_size - min_size)
+        sizes_lf_scaled = min_size + (sizes_lf - np.min(sizes_lf)) / (np.max(sizes_lf) - np.min(sizes_lf)) * (max_size - min_size)
+
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', label='HF_note', s=0.5, rasterized=True)
+        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', s=sizes_hf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.legend(loc='upper right')
+        plt.title(f'HF note picks_{metadata["cablename"]}', loc='right')
+
+        # Legend
+        # Create a set of legend handles with different sizes
+        handles = [
+        plt.scatter([], [], s=min_size, color='b', label=f'Min SNR: {sizes_hf.min():.1f}'),
+        plt.scatter([], [], s=(min_size + max_size) / 2, color='b', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
+        plt.scatter([], [], s=max_size, color='b', label=f'Max SNR: {sizes_hf.max():.1f}')
+        ]
+
+        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
         plt.savefig(f"figs/Figure_{fignum}.pdf")
-        fignum += 1        
+        fignum += 1
         # plt.show()
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', label='LF_note', s=0.5, rasterized=True)
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_lf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.legend(loc='upper right')
+        plt.title(f'LF note picks_{metadata["cablename"]}', loc='right')
+
+        # Legend
+        # Create a set of legend handles with different sizes
+        handles = [
+        plt.scatter([], [], s=min_size, color='b', label=f'Min SNR: {sizes_lf.min():.1f}'),
+        plt.scatter([], [], s=(min_size + max_size) / 2, color='b', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
+        plt.scatter([], [], s=max_size, color='b', label=f'Max SNR: {sizes_lf.max():.1f}')
+        ]
+
+        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
         plt.savefig(f"figs/Figure_{fignum}.pdf")
-        fignum += 1        
+        fignum += 1
         # plt.show()
 
         # Make a count of the detections depending on IPI and threshold
