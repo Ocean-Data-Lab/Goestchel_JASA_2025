@@ -169,8 +169,8 @@ def main(urls, selected_channels_m):
         sizes_lf = SNR_lfn[peaks_indexes_tp_LF[0], peaks_indexes_tp_LF[1]]
 
         # Scale the sizes of the picks
-        max_size = 70
-        min_size = 1
+        max_size = 140
+        min_size = 2
 
         # Scale the sizes to the range [0, 1]
         sizes_hf_scaled = min_size + (sizes_hf - np.min(sizes_hf)) / (np.max(sizes_hf) - np.min(sizes_hf)) * (max_size - min_size)
@@ -185,9 +185,9 @@ def main(urls, selected_channels_m):
         # Legend
         # Create a set of legend handles with different sizes
         handles = [
-        plt.scatter([], [], s=min(sizes_hf_scaled), color='b', label=f'Min SNR: {sizes_hf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_hf_scaled) + max(sizes_hf_scaled)) / 2, color='b', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
-        plt.scatter([], [], s=max(sizes_hf_scaled), color='b', label=f'Max SNR: {sizes_hf.max():.1f}')
+        plt.scatter([], [], s=min(sizes_hf_scaled), color='tab:blue', label=f'Min SNR: {sizes_hf.min():.1f}'),
+        plt.scatter([], [], s=(min(sizes_hf_scaled) + max(sizes_hf_scaled)) / 2, color='tab:blue', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
+        plt.scatter([], [], s=max(sizes_hf_scaled), color='tab:blue', label=f'Max SNR: {sizes_hf.max():.1f}')
         ]
 
         plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
@@ -205,9 +205,9 @@ def main(urls, selected_channels_m):
         # Legend
         # Create a set of legend handles with different sizes
         handles = [
-        plt.scatter([], [], s=min(sizes_lf_scaled), color='r', label=f'Min SNR: {sizes_lf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_lf_scaled) + max(sizes_lf_scaled)) / 2, color='r', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
-        plt.scatter([], [], s=max(sizes_lf_scaled), color='r', label=f'Max SNR: {sizes_lf.max():.1f}')
+        plt.scatter([], [], s=min(sizes_lf_scaled), color='tab:red', label=f'Min SNR: {sizes_lf.min():.1f}'),
+        plt.scatter([], [], s=(min(sizes_lf_scaled) + max(sizes_lf_scaled)) / 2, color='tab:red', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
+        plt.scatter([], [], s=max(sizes_lf_scaled), color='tab:red', label=f'Max SNR: {sizes_lf.max():.1f}')
         ]
 
         plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
@@ -314,8 +314,8 @@ def main(urls, selected_channels_m):
         sizes_lf = SNR_lf[peaks_indexes_tp_LF[0], peaks_indexes_tp_LF[1]]
 
         # Scale the sizes of the picks
-        max_size = 70
-        min_size = 1
+        max_size = 140
+        min_size = 2
 
         # Scale the sizes to the range [0, 1]
         sizes_hf_scaled = min_size + (sizes_hf - np.min(sizes_hf)) / (np.max(sizes_hf) - np.min(sizes_hf)) * (max_size - min_size)
@@ -330,9 +330,9 @@ def main(urls, selected_channels_m):
         # Legend
         # Create a set of legend handles with different sizes
         handles = [
-        plt.scatter([], [], s=min(sizes_hf_scaled), color='b', label=f'Min SNR: {sizes_hf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_hf_scaled) + max(sizes_hf_scaled)) / 2, color='b', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
-        plt.scatter([], [], s=max(sizes_hf_scaled), color='b', label=f'Max SNR: {sizes_hf.max():.1f}')
+        plt.scatter([], [], s=min(sizes_hf_scaled), color='tab:blue', label=f'Min SNR: {sizes_hf.min():.1f}'),
+        plt.scatter([], [], s=(min(sizes_hf_scaled) + max(sizes_hf_scaled)) / 2, color='tab:blue', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
+        plt.scatter([], [], s=max(sizes_hf_scaled), color='tab:blue', label=f'Max SNR: {sizes_hf.max():.1f}')
         ]
 
         plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
@@ -349,9 +349,9 @@ def main(urls, selected_channels_m):
         # Legend
         # Create a set of legend handles with different sizes
         handles = [
-        plt.scatter([], [], s=min(sizes_lf_scaled), color='r', label=f'Min SNR: {sizes_lf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_lf_scaled) + max(sizes_lf_scaled)) / 2, color='r', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
-        plt.scatter([], [], s=max(sizes_lf_scaled), color='r', label=f'Max SNR: {sizes_lf.max():.1f}')
+        plt.scatter([], [], s=min(sizes_lf_scaled), color='tab:red', label=f'Min SNR: {sizes_lf.min():.1f}'),
+        plt.scatter([], [], s=(min(sizes_lf_scaled) + max(sizes_lf_scaled)) / 2, color='tab:red', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
+        plt.scatter([], [], s=max(sizes_lf_scaled), color='tab:red', label=f'Max SNR: {sizes_lf.max():.1f}')
         ]
 
         plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
