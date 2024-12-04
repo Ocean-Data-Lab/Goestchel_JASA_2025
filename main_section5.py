@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 # Comment out these lines to enable the plots to display
 import matplotlib
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 
 plt.rcParams['font.size'] = 20
 plt.rcParams['axes.labelpad'] = 20
@@ -216,47 +216,47 @@ def main(urls, selected_channels_m):
         # plt.show()
 
         # Make a count of the detections depending on IPI and threshold
-        # thresholds = np.arange(2, 20.5, 0.5) # Thresholds in dB
-        # IPIs = np.arange(0, 5.5, 0.5) # Inter pulse intervals in seconds
-        # IPIs[0] = 1/fs # Force the first IPI to be the sampling period
-        # detect_cptHFnoise = [[], []]
-        # detect_cptLFnoise = [[], []]
+        thresholds = np.arange(2, 20.5, 0.5) # Thresholds in dB
+        IPIs = np.arange(0, 5.5, 0.5) # Inter pulse intervals in seconds
+        IPIs[0] = 1/fs # Force the first IPI to be the sampling period
+        detect_cptHFnoise = [[], []]
+        detect_cptLFnoise = [[], []]
 
-        # for t in tqdm(thresholds, desc=f"Picking times, iterating over thresholds"):
-        #         peaks_indexes_HF = []
-        #         peaks_indexes_LF = []
+        for t in tqdm(thresholds, desc=f"Picking times, iterating over thresholds"):
+                peaks_indexes_HF = []
+                peaks_indexes_LF = []
 
-        #         for corr in SNR_hfn:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)
-        #                 peaks_indexes_HF.append(peaks_indexes)
+                for corr in SNR_hfn:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)
+                        peaks_indexes_HF.append(peaks_indexes)
 
-        #         for corr in SNR_lfn:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)  
-        #                 peaks_indexes_LF.append(peaks_indexes)
+                for corr in SNR_lfn:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)  
+                        peaks_indexes_LF.append(peaks_indexes)
 
-        #         peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-        #         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
+                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
+                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
-        #         detect_cptHFnoise[0].append(len(peaks_indexes_tp_HF[0]))
-        #         detect_cptLFnoise[0].append(len(peaks_indexes_tp_LF[0]))
+                detect_cptHFnoise[0].append(len(peaks_indexes_tp_HF[0]))
+                detect_cptLFnoise[0].append(len(peaks_indexes_tp_LF[0]))
 
-        # for it in tqdm(IPIs, desc=f"Picking times, iterating over IPIs"):
-        #         peaks_indexes_HF = []
-        #         peaks_indexes_LF = []
+        for it in tqdm(IPIs, desc=f"Picking times, iterating over IPIs"):
+                peaks_indexes_HF = []
+                peaks_indexes_LF = []
 
-        #         for corr in SNR_hfn:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
-        #                 peaks_indexes_HF.append(peaks_indexes)
+                for corr in SNR_hfn:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
+                        peaks_indexes_HF.append(peaks_indexes)
 
-        #         for corr in SNR_lfn:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
-        #                 peaks_indexes_LF.append(peaks_indexes)
+                for corr in SNR_lfn:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
+                        peaks_indexes_LF.append(peaks_indexes)
 
-        #         peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-        #         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
+                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
+                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
-        #         detect_cptHFnoise[1].append(len(peaks_indexes_tp_HF[0]))
-        #         detect_cptLFnoise[1].append(len(peaks_indexes_tp_LF[0]))
+                detect_cptHFnoise[1].append(len(peaks_indexes_tp_HF[0]))
+                detect_cptLFnoise[1].append(len(peaks_indexes_tp_LF[0]))
 
 
         # Free memory
@@ -359,74 +359,72 @@ def main(urls, selected_channels_m):
         fignum += 1
         # plt.show()
 
-        # # Make a count of the detections depending on IPI and threshold
-        # detect_cptHF = [[], []]
-        # detect_cptLF = [[], []]
+        # Make a count of the detections depending on IPI and threshold
+        detect_cptHF = [[], []]
+        detect_cptLF = [[], []]
 
-        # for t in tqdm(thresholds, desc=f"Picking times, iterating over thresholds"):
-        #         peaks_indexes_HF = []
-        #         peaks_indexes_LF = []
+        for t in tqdm(thresholds, desc=f"Picking times, iterating over thresholds"):
+                peaks_indexes_HF = []
+                peaks_indexes_LF = []
 
-        #         for corr in SNR_hf:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)
-        #                 peaks_indexes_HF.append(peaks_indexes)
+                for corr in SNR_hf:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)
+                        peaks_indexes_HF.append(peaks_indexes)
 
-        #         for corr in SNR_lf:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)  
-        #                 peaks_indexes_LF.append(peaks_indexes)
+                for corr in SNR_lf:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)  
+                        peaks_indexes_LF.append(peaks_indexes)
 
-        #         peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-        #         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
+                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
+                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
-        #         detect_cptHF[0].append(len(peaks_indexes_tp_HF[0]))
-        #         detect_cptLF[0].append(len(peaks_indexes_tp_LF[0]))
+                detect_cptHF[0].append(len(peaks_indexes_tp_HF[0]))
+                detect_cptLF[0].append(len(peaks_indexes_tp_LF[0]))
         
-        # for it in tqdm(IPIs, desc=f"Picking times, iterating over IPIs"):
-        #         peaks_indexes_HF = []
-        #         peaks_indexes_LF = []
+        for it in tqdm(IPIs, desc=f"Picking times, iterating over IPIs"):
+                peaks_indexes_HF = []
+                peaks_indexes_LF = []
 
-        #         for corr in SNR_hf:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
-        #                 peaks_indexes_HF.append(peaks_indexes)
+                for corr in SNR_hf:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
+                        peaks_indexes_HF.append(peaks_indexes)
 
-        #         for corr in SNR_lf:
-        #                 peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
-        #                 peaks_indexes_LF.append(peaks_indexes)
+                for corr in SNR_lf:
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
+                        peaks_indexes_LF.append(peaks_indexes)
 
-        #         peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-        #         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
+                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
+                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
-        #         detect_cptHF[1].append(len(peaks_indexes_tp_HF[0]))
-        #         detect_cptLF[1].append(len(peaks_indexes_tp_LF[0]))
+                detect_cptHF[1].append(len(peaks_indexes_tp_HF[0]))
+                detect_cptLF[1].append(len(peaks_indexes_tp_LF[0]))
 
-        # # Plot the results of the denoising impact on detection counts
-        # plt.figure(figsize=(12,10))
-        # # subplot of the superior line
-        # plt.subplot(211)
-        # plt.plot(thresholds, detect_cptHFnoise[0], label='HF noise', lw=2)
-        # plt.plot(thresholds, detect_cptLFnoise[0], label='LF noise', lw=2)
-        # plt.plot(thresholds, detect_cptHF[0], label='HF denoised', lw=2, ls='--')
-        # plt.plot(thresholds, detect_cptLF[0], label='LF denoised', lw=2, ls='--')
-        # plt.ylabel('Number of detections')
-        # plt.xlabel('Threshold (dB)')
-        # plt.legend()
-        # plt.grid()
+        # Plot the results of the denoising impact on detection counts
+        plt.figure(figsize=(12,10))
+        # subplot of the superior line
+        plt.subplot(211)
+        plt.plot(thresholds, detect_cptHFnoise[0], label='HF noise', lw=2)
+        plt.plot(thresholds, detect_cptLFnoise[0], label='LF noise', lw=2)
+        plt.plot(thresholds, detect_cptHF[0], label='HF denoised', lw=2, ls='--')
+        plt.plot(thresholds, detect_cptLF[0], label='LF denoised', lw=2, ls='--')
+        plt.ylabel('Number of detections')
+        plt.xlabel('Threshold (dB)')
+        plt.legend()
+        plt.grid()
 
-        # # subplot of the inferior line
-        # plt.subplot(212)
-        # plt.plot(IPIs, detect_cptHFnoise[1], label='HF noise', lw=2)
-        # plt.plot(IPIs, detect_cptLFnoise[1], label='LF noise', lw=2)
-        # plt.plot(IPIs, detect_cptHF[1], label='HF denoised', lw=2, ls='--')
-        # plt.plot(IPIs, detect_cptLF[1], label='LF denoised', lw=2, ls='--')
-        # plt.ylabel('Number of detections')
-        # plt.xlabel('Inter pulse interval (s)')
-        # plt.legend()
-        # plt.grid()
+        # subplot of the inferior line
+        plt.subplot(212)
+        plt.plot(IPIs, detect_cptHFnoise[1], label='HF noise', lw=2)
+        plt.plot(IPIs, detect_cptLFnoise[1], label='LF noise', lw=2)
+        plt.plot(IPIs, detect_cptHF[1], label='HF denoised', lw=2, ls='--')
+        plt.plot(IPIs, detect_cptLF[1], label='LF denoised', lw=2, ls='--')
+        plt.ylabel('Number of detections')
+        plt.xlabel('Inter pulse interval (s)')
+        plt.legend()
+        plt.grid()
 
-        # plt.tight_layout()
-        # plt.show()
-
-
+        plt.tight_layout()
+        plt.show()
         return      
 
 

@@ -6,8 +6,8 @@ import scipy.signal as sp
 import matplotlib.pyplot as plt
 import das4whales as dw
 
-plt.rcParams['font.size'] = 20
-plt.rcParams['axes.labelpad'] = 20
+plt.rcParams['font.size'] = 24
+plt.rcParams['axes.labelpad'] = 24
 
 def main(urls, selected_channels_m):
         # North cable plots
@@ -50,12 +50,14 @@ def main(urls, selected_channels_m):
 
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
                 trf = dw.dsp.bp_filt(tr, fs, 14, 28)
-                dw.plot.plot_tx(sp.hilbert(trf, axis=1), time, dist, fileBeginTimeUTC, v_max=0.4)
+                cable_name = 'North' 
+                dw.plot.plot_tx(sp.hilbert(trf, axis=1), time, dist, f'Bandpass 14-28 Hz, {cable_name}', v_max=0.4)
         # South cable plots
         else:
                 # Download the DAS data
                 filepaths = []
                 filenames = []
+                cable_name = 'South'
                 for url in urls:
                         print(url)
                         filepath, filename = dw.data_handle.dl_file(url)
@@ -82,7 +84,6 @@ def main(urls, selected_channels_m):
         'fmax': 28.
         }
 
-
         fk_filter = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, fk_params=fk_params, display_filter=True)
 
         # Print the compression ratio given by the sparse matrix usage
@@ -90,16 +91,16 @@ def main(urls, selected_channels_m):
 
         # Apply the f-k filter to the data, returns spatio-temporal strain matrix
         trf_fk = dw.dsp.fk_filter_sparsefilt(tr, fk_filter, tapering=True)
-        dw.plot.plot_fk_domain(tr, fs, dx, selected_channels, fileBeginTimeUTC, fig_size=(14, 10), v_min=0, v_max=0.000025, fk_params=fk_params)
+        dw.plot.plot_fk_domain(tr, fs, dx, selected_channels, fig_size=(12, 10), v_min=0, v_max=0.000025, fk_params=fk_params, ax_lims=[12, 30, 0, 0.025])
 
         # Delete the raw data to free memory
         del tr
 
-        dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, v_max=0.4)
+        dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, f'Hybrid 14-28 Hz, 1400-5000 m.s$^{-1}$, {cable_name}', v_max=0.4, fig_size=(12, 10))
 
         # Plot the SNR
         SNR = dw.dsp.snr_tr_array(trf_fk)
-        dw.plot.snr_matrix(SNR, time, dist, 20, fileBeginTimeUTC)
+        dw.plot.snr_matrix(SNR, time, dist, 20, "$\\overset{\\sim}{\\text{SNR}}$ estimation, "+f"{cable_name}")
 
         return      
 

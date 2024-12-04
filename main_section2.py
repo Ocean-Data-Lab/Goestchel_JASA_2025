@@ -6,8 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import das4whales as dw
 
-plt.rcParams['font.size'] = 20
-plt.rcParams['axes.labelpad'] = 20
+plt.rcParams['font.size'] = 24
+plt.rcParams['axes.labelpad'] = 24
 
 
 def main():
