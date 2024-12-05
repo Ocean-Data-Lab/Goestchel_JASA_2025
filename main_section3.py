@@ -6,8 +6,8 @@ import scipy.signal as sp
 import matplotlib.pyplot as plt
 import das4whales as dw
 
-plt.rcParams['font.size'] = 24
-plt.rcParams['axes.labelpad'] = 24
+plt.rcParams['font.size'] = 30
+plt.rcParams['axes.labelpad'] = 2
 
 def main(urls, selected_channels_m):
         # North cable plots
@@ -51,7 +51,7 @@ def main(urls, selected_channels_m):
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
                 trf = dw.dsp.bp_filt(tr, fs, 14, 28)
                 cable_name = 'North' 
-                dw.plot.plot_tx(sp.hilbert(trf, axis=1), time, dist, f'Bandpass 14-28 Hz, {cable_name}', v_max=0.4)
+                dw.plot.plot_tx(sp.hilbert(trf, axis=1), time, dist, f'Bandpass filter, {cable_name}', v_max=0.4, fig_size=(12, 10))
         # South cable plots
         else:
                 # Download the DAS data
@@ -91,16 +91,16 @@ def main(urls, selected_channels_m):
 
         # Apply the f-k filter to the data, returns spatio-temporal strain matrix
         trf_fk = dw.dsp.fk_filter_sparsefilt(tr, fk_filter, tapering=True)
-        dw.plot.plot_fk_domain(tr, fs, dx, selected_channels, fig_size=(12, 10), v_min=0, v_max=0.000025, fk_params=fk_params, ax_lims=[12, 30, 0, 0.025])
+        dw.plot.plot_fk_domain(tr, fs, dx, selected_channels, fig_size=(9, 8.8), v_min=0, v_max=0.000025, fk_params=fk_params, ax_lims=[12, 30, 0, 0.025])
 
         # Delete the raw data to free memory
         del tr
 
-        dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, f'Hybrid 14-28 Hz, 1400-5000 m.s$^{-1}$, {cable_name}', v_max=0.4, fig_size=(12, 10))
+        dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, f'Hybrid filter, {cable_name}', v_max=0.4, fig_size=(12, 10))
 
         # Plot the SNR
         SNR = dw.dsp.snr_tr_array(trf_fk)
-        dw.plot.snr_matrix(SNR, time, dist, 20, "$\\overset{\\sim}{\\text{SNR}}$ estimation, "+f"{cable_name}")
+        dw.plot.snr_matrix(SNR, time, dist, 20, "SNR estimation, "+f"{cable_name}")
 
         return      
 
