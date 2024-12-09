@@ -7,8 +7,8 @@ import das4whales as dw
 import cv2
 import gc
 
-plt.rcParams['font.size'] = 20
-plt.rcParams['axes.labelpad'] = 20
+plt.rcParams['font.size'] = 30
+plt.rcParams['axes.labelpad'] = 2
 
 
 def main(urls, selected_channels_m):
@@ -51,6 +51,7 @@ def main(urls, selected_channels_m):
                 # Loads the data using the pre-defined selected channels. 
 
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
+                cable_name = 'North'
         # South cable plots
         else:
                 # Download the DAS data
@@ -73,6 +74,7 @@ def main(urls, selected_channels_m):
 
                 # Load the data
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, duration)
+                cable_name = 'South'
 
         # Create the f-k filter
         fk_params = {   # Parameters for the signal
@@ -129,8 +131,8 @@ def main(urls, selected_channels_m):
         del nmf_m_HF, nmf_m_LF, trf_fk
         gc.collect()
 
-        dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
-        dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
+        dw.plot.snr_matrix(SNR_hf, time, dist, 20, title_time_info=f'HF matched filter, {cable_name}')
+        dw.plot.snr_matrix(SNR_lf, time, dist, 20, title_time_info=f'LF matched filter, {cable_name}')
 
         # Create the Gabor filters for envelope clustering
         # Detection speed:
@@ -162,7 +164,7 @@ def main(urls, selected_channels_m):
 
             # Apply the mask to the original trace
             masked_tr = dw.improcess.apply_smooth_mask(im, mask_sparse_pad)
-            dw.plot.snr_matrix(masked_tr, time, dist, 20, fileBeginTimeUTC, title=f'mf detect: {labels[i]}')
+            dw.plot.snr_matrix(masked_tr, time, dist, 20, title_time_info=f'{labels[i]} Gabor filter, '+f"{cable_name}")
 
         return      
 

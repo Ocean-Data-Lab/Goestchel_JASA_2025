@@ -7,8 +7,8 @@ import das4whales as dw
 import cv2
 import gc
 
-plt.rcParams['font.size'] = 20
-plt.rcParams['axes.labelpad'] = 20
+plt.rcParams['font.size'] = 30
+plt.rcParams['axes.labelpad'] = 2
 
 
 def main(urls, selected_channels_m):
@@ -17,6 +17,7 @@ def main(urls, selected_channels_m):
                 # Download some DAS data
                 url = urls[0]
                 filepath, filename = dw.data_handle.dl_file(url)
+                cable_name = 'North'
 
                 # Read HDF5 files and access metadata
                 # Get the acquisition parameters for the data folder
@@ -56,6 +57,7 @@ def main(urls, selected_channels_m):
                 # Download the DAS data
                 filepaths = []
                 filenames = []
+                cable_name = 'South'
                 for url in urls:
                         print(url)
                         filepath, filename = dw.data_handle.dl_file(url)
@@ -97,7 +99,7 @@ def main(urls, selected_channels_m):
         noise = dw.dsp.fk_filter_sparsefilt(tr, fk_filter_noise, tapering=True)
 
         SNR_noise = dw.dsp.snr_tr_array(noise)
-        dw.plot.snr_matrix(SNR_noise, time, dist, 20, fileBeginTimeUTC, title='Noise field')
+        dw.plot.snr_matrix(SNR_noise, time, dist, 20, title_time_info=f'Noise field, {cable_name}')
 
         noise = dw.dsp.normalize_std(noise)
         window_size = 100
@@ -137,8 +139,8 @@ def main(urls, selected_channels_m):
         del nmf_m_HF, nmf_m_LF
         gc.collect()
 
-        dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
-        dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
+        dw.plot.snr_matrix(SNR_hf, time, dist, 20, title_time_info=f'HF matched filter denoised, {cable_name}')
+        dw.plot.snr_matrix(SNR_lf, time, dist, 20, title_time_info=f'LF matched filter denoised, {cable_name}')
 
         # Create the Gabor filters for envelope clustering
         # Detection speed:
@@ -170,7 +172,7 @@ def main(urls, selected_channels_m):
 
             # Apply the mask to the original trace
             masked_tr = dw.improcess.apply_smooth_mask(im, mask_sparse_pad)
-            dw.plot.snr_matrix(masked_tr, time, dist, 20, fileBeginTimeUTC, title=f'mf detect: {labels[i]}')
+            dw.plot.snr_matrix(masked_tr, time, dist, 20, title_time_info=f'{labels[i]} Gabor filter denoised, '+f"{cable_name}")
 
         return      
 
