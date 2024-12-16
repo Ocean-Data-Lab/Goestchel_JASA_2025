@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
+from matplotlib.patches import Ellipse, Arc
 
 plt.rcParams['font.size'] = 30
 plt.rcParams['axes.labelpad'] = 2
@@ -38,10 +38,27 @@ ellipse_patch = Ellipse((0, 0), width=2*sigma, height=2*sigma/gamma, angle=np.de
 ax.add_patch(ellipse_patch)
 
 # Annotate parameters
-ax.arrow(0, 0, sigma * np.cos(theta), sigma * np.sin(theta), color='black',
-         width=0.05, length_includes_head=True, label='Orientation (θ)')
-ax.annotate('$\\theta$', (0.5 * sigma * np.cos(theta), 0.5 * sigma * np.sin(theta)),
-            textcoords="offset points", xytext=(-10, 10), ha='center', color='black')
+# ax.arrow(0, 0, sigma * np.cos(theta), sigma * np.sin(theta), color='black',
+#          width=0.05, length_includes_head=True, label='Orientation (θ)')
+
+# Plot the arc for angle
+arc_radius = np.cos(theta) * sigma
+arc = Arc((0, 0), width=2*arc_radius, height=2*arc_radius, angle=0,
+          theta1=0, theta2=np.degrees(theta), color='black', lw=2)
+ax.add_patch(arc)
+
+# Add horizontal and tilted lines for reference
+line_length = 1.5
+ax.plot([0, line_length], [0, 0], color='black', lw=3, linestyle='--', label='Horizontal Reference')
+ax.plot([0, line_length * np.cos(theta)], [0, line_length * np.sin(theta)],
+        color='black', lw=3, linestyle='--', label='Tilted Reference')
+
+# Add the angle label
+ax.annotate('$\\theta$', (arc_radius * np.cos(theta/2), arc_radius * np.sin(theta/2)),
+            textcoords="offset points", xytext=(15, -15), ha='center', color='black')
+
+# ax.annotate('$\\theta$', (0.5 * sigma * np.cos(theta), 0.5 * sigma * np.sin(theta)),
+#             textcoords="offset points", xytext=(-10, 10), ha='center', color='black')
 # ax.annotate('$f_c$', (0.5, 0), textcoords="offset points", xytext=(5, -15), color='black')
 ax.annotate('$\\gamma$', (-sigma / gamma, sigma / gamma), textcoords="offset points", xytext=(0, -80), color='black')
 
