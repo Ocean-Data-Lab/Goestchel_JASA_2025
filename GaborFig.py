@@ -7,7 +7,7 @@ plt.rcParams['axes.labelpad'] = 2
 
 # Define Gabor filter parameters
 sigma = 1.0      # Spatial extent
-fc = 5.0         # Carrier frequency
+fc = 1.5         # Carrier frequency
 gamma = 0.5      # Aspect ratio
 theta = np.pi/4  # Orientation
 amplitude = 1.0
@@ -38,13 +38,21 @@ ellipse_patch = Ellipse((0, 0), width=2*sigma, height=2*sigma/gamma, angle=np.de
 ax.add_patch(ellipse_patch)
 
 # Annotate parameters
-ax.arrow(0, 0, sigma * np.cos(theta), sigma * np.sin(theta), color='orange',
+ax.arrow(0, 0, sigma * np.cos(theta), sigma * np.sin(theta), color='black',
          width=0.05, length_includes_head=True, label='Orientation (θ)')
 ax.annotate('$\\theta$', (0.5 * sigma * np.cos(theta), 0.5 * sigma * np.sin(theta)),
-            textcoords="offset points", xytext=(-10, 10), ha='center', color='orange')
-ax.annotate('$f_c$', (0.5, 0), textcoords="offset points", xytext=(5, -15), color='blue')
-ax.annotate('$\\sigma$', (sigma, 0), textcoords="offset points", xytext=(10, 10), color='green')
+            textcoords="offset points", xytext=(-10, 10), ha='center', color='black')
+# ax.annotate('$f_c$', (0.5, 0), textcoords="offset points", xytext=(5, -15), color='black')
 ax.annotate('$\\gamma$', (-sigma / gamma, sigma / gamma), textcoords="offset points", xytext=(0, -80), color='black')
+
+# Add double arrows
+translat = 1.8
+ax.annotate('', xy=(-sigma * np.cos(theta) + translat, -sigma * np.sin(theta) - translat), xytext=(sigma * np.cos(theta) +translat, sigma * np.sin(theta) -translat), arrowprops=dict(arrowstyle='<->', color='black', lw=4))
+ax.annotate('$2\\sigma$', (translat, -translat), textcoords="offset points", xytext=(30, -30), ha='center', color='black')
+
+translat = 0.7
+ax.annotate('', xy=(-1/(2*fc) * np.cos(theta) + translat, -1/(2*fc) * np.sin(theta) - translat), xytext=(1/(2*fc) * np.cos(theta) + translat, 1/(2*fc) * np.sin(theta)- translat), arrowprops=dict(arrowstyle='<->', color='black', lw=4))
+ax.annotate('1/$f_c$', (translat, -translat), textcoords="offset points", xytext=(30, -30), ha='center', color='black')
 
 # Adjust plot limits and labels
 ax.set_xlim(-x_max, x_max)
