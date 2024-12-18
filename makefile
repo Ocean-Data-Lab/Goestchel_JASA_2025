@@ -7,6 +7,7 @@ SRC3 = main_section3.py
 SRC4 = main_section4.py
 SRC4c = main_section4c.py
 SRC5 = main_section5.py
+SRCSUPP = main_supplementary.py
 
 # Define the virtual environment directory
 VENV_DIR = venv
@@ -34,3 +35,6 @@ section4c:
 
 section5:
 	$(ACTIVATE_VENV) && $(PYTHON) $(SRC5)
+
+supplementary:
+	$(ACTIVATE_VENV) && $(PYTHON) $(SRCSUPP)
