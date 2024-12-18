@@ -201,9 +201,11 @@ def main(urls, selected_channels_m):
     from matplotlib.colors import ListedColormap
 
     ## Threshold study
+    print('Threshold study')
     # Threshold the image, for different threshold values
     thresholds = [0.2, 0.6, 0.4]
     for threshold in thresholds:
+        print(f'Threshold={threshold}')
         mask = fimage > threshold
 
         mask_sparse = dw.improcess.binning(mask, 10, 10)
@@ -225,9 +227,10 @@ def main(urls, selected_channels_m):
         dw.plot.snr_matrix(masked_tr, time, dist, 20)
 
     ## Sigma study
-    sigmas = [2, 4, 6]
-
+    sigmas = [2, 5, 6]
+    print('Sigma study')
     for sigma in sigmas:
+        print(f'Sigma={sigma}')
         gabor_filtup = cv2.getGaborKernel((ksize, ksize), sigma, theta, lambd, gamma, 0, ktype=cv2.CV_64F)
         gabor_filtdown = np.flipud(gabor_filtup)
 
@@ -258,11 +261,85 @@ def main(urls, selected_channels_m):
         plt.xlabel('Time indices [ ]')
         plt.ylabel('Distance indices [ ]')
         plt.colorbar(pmask, ticks=[0, 1])
-        plt.title(f'Threshold={threshold}')
         plt.tight_layout()
         plt.show()
 
+    ## Lambda study
+    print('Lambda study')
+    lambdas = [10, 20, 30]
 
+    for lambd in lambdas:
+        print(f'Lambda={lambd}')
+        gabor_filtup = cv2.getGaborKernel((ksize, ksize), sigma, theta, lambd, gamma, 0, ktype=cv2.CV_64F)
+        gabor_filtdown = np.flipud(gabor_filtup)
+
+        fimage = cv2.filter2D(imagebin, cv2.CV_64F, gabor_filtup) + cv2.filter2D(imagebin, cv2.CV_64F, gabor_filtdown)
+        fimage = dw.improcess.scale_pixels(fimage)
+
+        # Plot filtered image 
+        plt.figure(figsize=(12, 10))
+        plt.imshow(fimage, cmap='viridis', aspect='auto', origin='lower', vmax=1)
+        plt.xlabel('Binned time indices [ ]')
+        plt.ylabel('Binned distance indices [ ]')
+        plt.title(f'$\\sigma=${sigma}, $\\lambda=${lambd}, $\\gamma=${gamma}')
+        plt.colorbar(label='Normalized amplitude [ ]')
+        plt.tight_layout()
+
+        # Threshold the image, for threshold = 0.4
+        threshold = 0.4
+        mask = fimage > threshold
+
+        mask_sparse = dw.improcess.binning(mask, 10, 10)
+        # Zero padd the mask to be the same size as the original trace
+        diff = np.maximum(np.array(im.shape) - np.array(mask_sparse.shape), 0)
+        mask_sparse_pad = np.pad(mask_sparse, ((0, diff[0]), (0, diff[1])), mode='edge')
+
+        plt.figure(figsize=(12, 10))
+        bin_cmap = ListedColormap(['black', 'white'])
+        pmask = plt.imshow(mask_sparse_pad, cmap=bin_cmap, aspect='auto', origin='lower')
+        plt.xlabel('Time indices [ ]')
+        plt.ylabel('Distance indices [ ]')
+        plt.colorbar(pmask, ticks=[0, 1])
+        plt.tight_layout()
+        plt.show()
+
+    ## Gamma study
+    print('Gamma study')
+    gammas = [0.15, 1, 1.85]
+
+    for gamma in gammas:
+        print(f'Gamma={gamma}')
+        gabor_filtup = cv2.getGaborKernel((ksize, ksize), sigma, theta, lambd, gamma, 0, ktype=cv2.CV_64F)
+        gabor_filtdown = np.flipud(gabor_filtup)
+
+        fimage = cv2.filter2D(imagebin, cv2.CV_64F, gabor_filtup) + cv2.filter2D(imagebin, cv2.CV_64F, gabor_filtdown)
+        fimage = dw.improcess.scale_pixels(fimage)
+
+        # Plot filtered image 
+        plt.figure(figsize=(12, 10))
+        plt.imshow(fimage, cmap='viridis', aspect='auto', origin='lower', vmax=1)
+        plt.xlabel('Binned time indices [ ]')
+        plt.ylabel('Binned distance indices [ ]')
+        plt.title(f'$\\sigma=${sigma}, $\\lambda=${lambd}, $\\gamma=${gamma}')
+        plt.colorbar(label='Normalized amplitude [ ]')
+        plt.tight_layout()
+
+        # Threshold the image, for threshold = 0.4
+        threshold = 0.4
+        mask = fimage > threshold
+
+        mask_sparse = dw.improcess.binning(mask, 10, 10)
+        # Zero padd the mask to be the same size as the original trace
+        diff = np.maximum(np.array(im.shape) - np.array(mask_sparse.shape), 0)
+        mask_sparse_pad = np.pad(mask_sparse, ((0, diff[0]), (0, diff[1])), mode='edge')
+
+        plt.figure(figsize=(12, 10))
+        bin_cmap = ListedColormap(['black', 'white'])
+        pmask = plt.imshow(mask_sparse_pad, cmap=bin_cmap, aspect='auto', origin='lower')
+        plt.xlabel('Time indices [ ]')
+        plt.ylabel('Distance indices [ ]')
+        plt.colorbar(pmask, ticks=[0, 1])
+        plt.tight_layout()
 
 
     return
