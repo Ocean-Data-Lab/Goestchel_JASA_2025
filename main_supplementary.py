@@ -166,7 +166,6 @@ def main(urls, selected_channels_m):
 
     # Create custom Gabor filter with hyperbolic carrier
     HF_note = dw.detect.gen_hyperbolic_chirp(17.8, 28.8, 0.68, fs)
-    print(len(HF_note))
 
     # plt.figure(figsize=(8, 8))
     # # plt.subplot(121)
@@ -267,6 +266,7 @@ def main(urls, selected_channels_m):
     ## Lambda study
     print('Lambda study')
     lambdas = [10, 20, 30]
+    sigma = 4
 
     for lambd in lambdas:
         print(f'Lambda={lambd}')
@@ -306,6 +306,7 @@ def main(urls, selected_channels_m):
     ## Gamma study
     print('Gamma study')
     gammas = [0.15, 1, 1.85]
+    lambd = 20
 
     for gamma in gammas:
         print(f'Gamma={gamma}')
@@ -340,6 +341,7 @@ def main(urls, selected_channels_m):
         plt.ylabel('Distance indices [ ]')
         plt.colorbar(pmask, ticks=[0, 1])
         plt.tight_layout()
+        plt.show()
 
 
     return
