@@ -71,8 +71,6 @@ def main(urls, selected_channels_m):
 
                 timestamp = '2021-11-04 02:00:02.025000'
                 duration = 60
-                selected_channels = dw.data_handle.get_selected_channels(selected_channels_m, dx)
-
                 # Load the data
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, duration)
 
