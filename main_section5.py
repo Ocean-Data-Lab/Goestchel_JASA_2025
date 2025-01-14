@@ -180,7 +180,7 @@ def main(urls, selected_channels_m):
         plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', s=sizes_hf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.title(f'HF note picks_{metadata["cablename"]}', loc='right')
+        plt.title(f'HF note picks, {metadata["cablename"]}', loc='right')
 
         # Legend
         # Create a set of legend handles with different sizes
@@ -200,7 +200,7 @@ def main(urls, selected_channels_m):
         plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_lf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.title(f'LF note picks_{metadata["cablename"]}', loc='right')
+        plt.title(f'LF note picks, {metadata["cablename"]}', loc='right')
 
         # Legend
         # Create a set of legend handles with different sizes
@@ -325,7 +325,7 @@ def main(urls, selected_channels_m):
         plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', s=sizes_hf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.title(f'HF note picks_{metadata["cablename"]}', loc='right')
+        plt.title(f'HF note picks denoised, {metadata["cablename"]}', loc='right')
 
         # Legend
         # Create a set of legend handles with different sizes
@@ -344,7 +344,7 @@ def main(urls, selected_channels_m):
         plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_lf_scaled, rasterized=True)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
-        plt.title(f'LF note picks_{metadata["cablename"]}', loc='right')
+        plt.title(f'LF note picks denoised, {metadata["cablename"]}', loc='right')
 
         # Legend
         # Create a set of legend handles with different sizes
