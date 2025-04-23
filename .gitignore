@@ -170,3 +170,7 @@ cython_debug/
 
 # out folder
 /out
+
+# Jupyter Notebook
+*.ipynb_checkpoints
+*.ipynb
