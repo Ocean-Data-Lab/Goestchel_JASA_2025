@@ -174,3 +174,6 @@ cython_debug/
 # Jupyter Notebook
 *.ipynb_checkpoints
 *.ipynb
+
+# VS Code
+.vscode/
