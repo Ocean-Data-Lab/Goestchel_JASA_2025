@@ -27,3 +27,18 @@ All the scripts can be run using the `makefile`. Example for the section 3:
 ```shell
 make section3
 ```
+
+## Scripts description 
+The scripts in this repository are related to the sections of the paper [Enhancing Fin Whale Vocalizations in Distributed Acoustic Sensing Data]() and follow its organization. They depend on function developed in [DAS4whales](https://github.com/DAS4Whales/DAS4Whales) and show different denoising techniques for 20 Hz fin whales vocalization, on a 60s subset of data. Namely:
+- `main_section3.py` displays the use of bandpass filtering, hybrid f-k filtering and SNR estimation.
+- `main_section4.py` displays the effect of match-filtering and Gabor filtering on the data.
+- `main_section4c.py` displays the effect of the noise envelope subtraction technique.
+- `main_section5.py` show the time picking method results for f-k filtered data and denoised data.
+
+## DATA 
+
+The data used in this code comes from the 2021 OOI RCA dataset:
+
+>Wilcock, W., & Ocean Observatories Initiative. (2023). Rapid: A Community Test of Distributed Acoustic Sensing on the Ocean Observatories Initiative Regional Cabled Array [Data set]. Ocean Observatories Initiative. https://doi.org/10.58046/5J60-FJ89
+
+The codes are set to fetch the data automatically from the OOI server. 
