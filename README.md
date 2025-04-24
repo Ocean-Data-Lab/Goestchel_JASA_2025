@@ -50,4 +50,4 @@ The scripts are memory intensive, and at least 32GB of RAM is recommended. Other
 
 -`selected_channels_m_north = [12000, 66000, 5]`
 
-can be reduced by increasing the channel step in meters. The channel spacing of the raw data is 2m, the channel spacing used in these scripts is 4m and can be changed by increasing the last value of the lists above (e.g. 5). 
+can be reduced by increasing the channel spacing in meters. The channel spacing of the raw data is 2m, the channel spacing used in these scripts is 4m and can be changed by increasing the last value in the lists above (e.g. 5). 
