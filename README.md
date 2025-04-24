@@ -29,11 +29,11 @@ make section3
 ```
 
 ## Scripts description 
-The scripts in this repository are related to the sections of the paper [Enhancing Fin Whale Vocalizations in Distributed Acoustic Sensing Data]() and follow its organization. They depend on function developed in [DAS4whales](https://github.com/DAS4Whales/DAS4Whales) and show different denoising techniques for 20 Hz fin whales vocalization, on a 60s subset of data. Namely:
-- `main_section3.py` displays the use of bandpass filtering, hybrid f-k filtering and SNR estimation.
-- `main_section4.py` displays the effect of match-filtering and Gabor filtering on the data.
-- `main_section4c.py` displays the effect of the noise envelope subtraction technique.
-- `main_section5.py` show the time picking method results for f-k filtered data and denoised data.
+The scripts in this repository are related to the sections of the paper [Enhancing Fin Whale Vocalizations in Distributed Acoustic Sensing Data]() and follow its organization. They depend on functions developed in [DAS4whales](https://github.com/DAS4Whales/DAS4Whales) and show different denoising techniques for 20 Hz fin whale vocalizations, on a 60s subset of data. Namely:
+- `main_section3.py` shows the use of bandpass filtering, hybrid f-k filtering and SNR estimation.
+- `main_section4.py` shows the effect of match-filtering and Gabor filtering on the data.
+- `main_section4c.py` shows the effect of the noise envelope subtraction technique.
+- `main_section5.py` shows the results of the time picking method for f-k filtered data and denoised data.
 
 ## DATA 
 
@@ -42,3 +42,12 @@ The data used in this code comes from the 2021 OOI RCA dataset:
 >Wilcock, W., & Ocean Observatories Initiative. (2023). Rapid: A Community Test of Distributed Acoustic Sensing on the Ocean Observatories Initiative Regional Cabled Array [Data set]. Ocean Observatories Initiative. https://doi.org/10.58046/5J60-FJ89
 
 The codes are set to fetch the data automatically from the OOI server. 
+
+## Warning: high RAM usage
+The scripts are memory intensive, and at least 32GB of RAM is recommended. Otherwise, the number of channels:
+
+-`selected_channels_m_north = [12000, 66000, 5]`
+
+-`selected_channels_m_north = [12000, 66000, 5]`
+
+can be reduced by increasing the channel step in meters. The channel spacing of the raw data is 2m, the channel spacing used in these scripts is 4m and can be changed by increasing the last value of the lists above (e.g. 5). 

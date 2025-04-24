@@ -245,11 +245,11 @@ def main(urls, selected_channels_m):
                 peaks_indexes_LF = []
 
                 for corr in SNR_hfn:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = int(round(it * fs)), height=th)
                         peaks_indexes_HF.append(peaks_indexes)
 
                 for corr in SNR_lfn:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = int(round(it * fs)), height=th)  
                         peaks_indexes_LF.append(peaks_indexes)
 
                 peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
@@ -386,11 +386,11 @@ def main(urls, selected_channels_m):
                 peaks_indexes_LF = []
 
                 for corr in SNR_hf:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = int(round(it * fs)), height=th)
                         peaks_indexes_HF.append(peaks_indexes)
 
                 for corr in SNR_lf:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
+                        peaks_indexes,_ = sp.find_peaks(corr, distance = int(round(it * fs)), height=th)  
                         peaks_indexes_LF.append(peaks_indexes)
 
                 peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
