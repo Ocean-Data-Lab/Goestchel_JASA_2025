@@ -2,7 +2,6 @@
 PYTHON = python
 
 # Define the source files
-SRC2 = main_section2.py
 SRC3 = main_section3.py
 SRC4 = main_section4.py
 SRC4c = main_section4c.py
@@ -19,10 +18,7 @@ ACTIVATE_VENV = \
     fi
 
 # Start the compilation (execution in this case)
-all: section2 section3 section4 section5
-
-section2:
-	$(ACTIVATE_VENV) && $(PYTHON) $(SRC2)
+all: section3 section4 section5
 
 section3:
 	$(ACTIVATE_VENV) && $(PYTHON) $(SRC3)
