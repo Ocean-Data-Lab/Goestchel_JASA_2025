@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/829659096.svg)](https://doi.org/10.5281/zenodo.15278387)
+
 # Code related to [link to publication]()
 
 This code generates the figures related to the published paper [Enhancing Fin Whale Vocalizations in Distributed Acoustic Sensing Data](). It serves as a tutorial for the fin whale calls denoising pipeline described in the paper. 
